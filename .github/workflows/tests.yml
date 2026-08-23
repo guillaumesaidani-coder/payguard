@@ -1,0 +1,55 @@
+# CI PayGuard (m24).
+# main reste un starter sain ; les branches apprenants doivent atteindre 12 tests verts.
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  starter-main:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - name: Dépendances
+        run: uv sync --frozen --extra dev
+
+      - name: Contrat du starter certifié
+        run: |
+          set +e
+          output="$(uv run python -m pytest -q 2>&1)"
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          test "$status" -eq 1
+          printf '%s\n' "$output" | grep -Eq '10 failed, 1 passed, 1 skipped'
+
+      - name: Entraînement fourni
+        run: uv run python scripts/train_model.py
+
+  tests-apprenants:
+    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - name: Dépendances
+        run: uv sync --frozen --extra dev
+
+      - name: Pipeline minimal (entraînement pour les tests d'intégration)
+        run: uv run python scripts/train_model.py
+
+      - name: Tests
+        run: uv run python -m pytest -q

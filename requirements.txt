@@ -1,0 +1,13 @@
+# TP PayGuard — repli pip/venv si uv n'est pas disponible sur le poste.
+# (voie recommandée CISIA : uv sync --frozen --extra dev — voir README.md)
+numpy>=1.26
+pandas>=2.1
+scipy>=1.11
+scikit-learn>=1.4
+matplotlib>=3.8
+joblib>=1.3
+pytest>=8.0
+# Bonus facultatif (étape 8) : décommenter si vous faites la partie Evidently
+# evidently>=0.7,<0.8
+# L'observabilité active est traitée en M33-M34 dans le repo fil rouge ; aucune
+# dépendance Prometheus non verrouillée n'est installée dans ce TP apprenant.
