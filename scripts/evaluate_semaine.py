@@ -48,14 +48,16 @@ def evaluer_semaine(semaine: int) -> dict:
     proba = modele.predict_proba(df[features])[:, 1]
     y_true = df["fraude"].to_numpy()
 
-    # --- cœur de l'étape 6 — TODO 🧑‍🎓 --------------------------------------
-    # 1. y_pred : décision binaire au seuil GELÉ (proba >= seuil → 1, sinon 0).
-    # 2. tn, fp, fn, tp : matrice de confusion (indice : confusion_matrix(...).ravel()).
-    # 3. accuracy, precision, rappel : recalculez-les À LA MAIN depuis tn/fp/fn/tp
-    #    (révision module 11 — attention aux divisions par zéro : renvoyer 0.0).
-    # 4. pr_auc, roc_auc : depuis les PROBABILITÉS, pas depuis y_pred
-    #    (révision module 21 — l'AUC est indépendante du seuil).
-    raise NotImplementedError("À compléter — étape 6 du TP (evaluer_semaine)")
+    # --- cœur de l'étape 6 ---------------------------------------------------
+    y_pred = (proba >= seuil).astype(int)
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+
+    accuracy = (tp + tn) / (tn + fp + fn + tp) if (tn + fp + fn + tp) > 0 else 0.0
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    rappel = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+
+    pr_auc = average_precision_score(y_true, proba)
+    roc_auc = roc_auc_score(y_true, proba)
     # -----------------------------------------------------------------------
 
     return {
